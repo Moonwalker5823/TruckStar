@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-900 text-white">
     <!-- Navbar -->
     <header ref="headerRef" class="bg-gray-800 shadow-md">
-      <div class="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center gap-3">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-3">
         <div class="flex items-center gap-2 shrink-0">
           <img :src="logoUrl" alt="Truck Star" class="h-9 w-auto" />
           <h1 class="font-script text-3xl font-bold bg-gradient-to-br from-orange-400 to-yellow-300 bg-clip-text text-transparent">Truck Star</h1>
@@ -22,26 +22,26 @@
           >
             Search
           </button>
+          <button
+            @click="refresh"
+            :disabled="loading"
+            class="shrink-0 px-4 py-2 bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors"
+          >
+            {{ loading ? 'Searching...' : 'Use My Location' }}
+          </button>
         </div>
-        <button
-          @click="refresh"
-          :disabled="loading"
-          class="shrink-0 px-4 py-2 bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors"
-        >
-          {{ loading ? 'Searching...' : 'Use My Location' }}
-        </button>
       </div>
     </header>
 
     <div class="max-w-7xl mx-auto px-6 py-6 space-y-5">
       <!-- Map + side panel -->
-      <div class="flex gap-6">
-        <div class="flex-1 h-[500px] rounded-xl overflow-hidden ring-1 ring-gray-700">
+      <div class="flex flex-col md:flex-row gap-6">
+        <div class="w-full md:flex-1 h-64 md:h-[500px] rounded-xl overflow-hidden ring-1 ring-gray-700">
           <MapView :trucks="trucks" :center="userLocation" />
         </div>
 
         <!-- Right panel: detail view or cards list -->
-        <div class="w-80 h-[500px]">
+        <div class="w-full md:w-80 h-80 md:h-[500px]">
           <TruckDetail
             v-if="selectedTruck"
             :truck="selectedTruck"
@@ -73,12 +73,13 @@
         <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
           Hot Spots — Top US Food Trucks
         </h2>
-        <div class="grid grid-cols-5 gap-4">
+        <div class="flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-5 md:overflow-x-visible md:pb-0">
           <HotSpotCard
             v-for="truck in POPULAR_TRUCKS"
             :key="truck.name"
             :truck="truck"
             @select="selectTruck(truck)"
+            class="shrink-0 w-52 md:w-auto md:shrink"
           />
         </div>
       </div>
@@ -87,7 +88,7 @@
 
     <!-- Footer -->
     <footer class="bg-gray-800 w-full py-10 mt-6">
-      <div class="flex items-center justify-center gap-8">
+      <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
         <span class="font-script text-5xl font-bold bg-gradient-to-br from-orange-400 to-yellow-300 bg-clip-text text-transparent select-none">
           Truck Star
         </span>
