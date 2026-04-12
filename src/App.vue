@@ -12,7 +12,7 @@
             v-model="searchQuery"
             @keyup.enter="searchLocation"
             type="text"
-            placeholder="Search city, address, or zip code..."
+            placeholder="Search US city, address, or zip code..."
             class="flex-1 min-w-0 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-orange-500"
           />
           <button
@@ -112,6 +112,13 @@ const loading = ref(false);
 const error = ref(null);
 const selectedTruck = ref(null);
 
+function isWithinUSA(lat, lng) {
+  const contiguous = lat >= 24.52 && lat <= 49.38 && lng >= -124.77 && lng <= -66.95;
+  const alaska     = lat >= 54.69 && lat <= 71.36 && lng >= -168.00 && lng <= -130.00;
+  const hawaii     = lat >= 18.86 && lat <= 28.52 && lng >= -160.24 && lng <= -154.81;
+  return contiguous || alaska || hawaii;
+}
+
 function selectTruck(truck) {
   selectedTruck.value = truck;
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -140,7 +147,7 @@ async function fetchTrucks(lat, lng) {
 }
 
 async function geocodeLocation(query) {
-  const params = new URLSearchParams({ q: query, format: 'json', limit: '1' });
+  const params = new URLSearchParams({ q: query, format: 'json', limit: '1', countrycodes: 'us' });
   const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
   if (!response.ok) throw new Error('Geocoding service unavailable');
   const results = await response.json();
@@ -153,6 +160,9 @@ async function refresh() {
   error.value = null;
   try {
     const location = await getLocation();
+    if (!isWithinUSA(location.lat, location.lng)) {
+      throw new Error('This app is US-only. Your detected location is outside the United States.');
+    }
     userLocation.value = location;            // move map immediately
     trucks.value = await fetchTrucks(location.lat, location.lng);
   } catch (err) {
