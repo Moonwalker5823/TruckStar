@@ -8,12 +8,13 @@ vi.mock('leaflet', () => {
     bindPopup: vi.fn().mockReturnThis(),
     remove: vi.fn(),
   });
-  const mapInstance = {
-    setView: vi.fn().mockReturnThis(),
-  };
   return {
     default: {
-      map: vi.fn(() => mapInstance),
+      map: vi.fn(() => ({
+        setView: vi.fn().mockReturnThis(),
+        getZoom: vi.fn().mockReturnValue(14),
+        remove: vi.fn(),
+      })),
       tileLayer: vi.fn(() => ({ addTo: vi.fn() })),
       marker: vi.fn(() => makeMarker()),
       Icon: { Default: { prototype: {}, mergeOptions: vi.fn() } },
@@ -73,5 +74,22 @@ describe('MapView', () => {
 
     // 1 on mount + 2 after prop change = 3 total
     expect(L.marker).toHaveBeenCalledTimes(3);
+  });
+
+  it('calls setView with new coordinates when center prop changes', async () => {
+    const wrapper = mount(MapView, {
+      props: {
+        trucks: [],
+        center: { lat: 37.77, lng: -122.41 },
+      },
+    });
+    await flushPromises();
+
+    const mapInstance = L.map.mock.results[0].value;
+
+    await wrapper.setProps({ center: { lat: 40.71, lng: -74.00 } });
+    await flushPromises();
+
+    expect(mapInstance.setView).toHaveBeenCalledWith([40.71, -74.00], 14);
   });
 });

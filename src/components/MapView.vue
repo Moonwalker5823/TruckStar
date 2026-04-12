@@ -3,20 +3,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import markerIconUrl from 'leaflet/dist/images/marker-icon.png';
 import markerIcon2xUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png';
-
-// Fix broken marker icons in Vite builds
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconUrl: markerIconUrl,
-  iconRetinaUrl: markerIcon2xUrl,
-  shadowUrl: markerShadowUrl,
-});
 
 const props = defineProps({
   trucks: { type: Array, default: () => [] },
@@ -24,6 +16,7 @@ const props = defineProps({
 });
 
 const mapContainer = ref(null);
+// These are plain JS values, not reactive — Leaflet objects must not be wrapped in Vue proxies
 let map = null;
 const markers = [];
 
@@ -34,6 +27,7 @@ function clearMarkers() {
 
 function addMarkers(trucks) {
   trucks.forEach(truck => {
+    if (truck.lat == null || truck.lng == null) return;
     const marker = L.marker([truck.lat, truck.lng])
       .addTo(map)
       .bindPopup(`<strong>${truck.name}</strong>`);
@@ -42,6 +36,14 @@ function addMarkers(trucks) {
 }
 
 onMounted(() => {
+  // Apply icon fix here (not at module scope) to avoid side-effects at import time
+  delete L.Icon.Default.prototype._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconUrl: markerIconUrl,
+    iconRetinaUrl: markerIcon2xUrl,
+    shadowUrl: markerShadowUrl,
+  });
+
   map = L.map(mapContainer.value).setView(
     [props.center.lat, props.center.lng],
     14,
@@ -52,6 +54,13 @@ onMounted(() => {
   }).addTo(map);
 
   addMarkers(props.trucks);
+});
+
+onUnmounted(() => {
+  if (map) {
+    map.remove();
+    map = null;
+  }
 });
 
 watch(
@@ -68,7 +77,7 @@ watch(
   () => props.center,
   newCenter => {
     if (!map || !newCenter) return;
-    map.setView([newCenter.lat, newCenter.lng], 14);
+    map.setView([newCenter.lat, newCenter.lng], map.getZoom());
   },
 );
 </script>
