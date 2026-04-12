@@ -5,7 +5,7 @@
       <div class="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center gap-3">
         <div class="flex items-center gap-2 shrink-0">
           <img :src="logoUrl" alt="Truck Star" class="h-9 w-auto" />
-          <h1 class="text-xl font-bold tracking-tight">Truck Star</h1>
+          <h1 class="font-script text-3xl font-bold bg-gradient-to-br from-orange-400 to-yellow-300 bg-clip-text text-transparent">Truck Star</h1>
         </div>
         <div class="flex items-center gap-2 flex-1 min-w-0">
           <input
@@ -91,10 +91,7 @@
         <span class="font-script text-5xl font-bold bg-gradient-to-br from-orange-400 to-yellow-300 bg-clip-text text-transparent select-none">
           Truck Star
         </span>
-        <div class="flex flex-col items-center gap-2">
-          <img :src="logoUrl" alt="Truck Star" class="h-16 w-auto" />
-          <h2 class="text-2xl font-extrabold tracking-tight">Truck Star</h2>
-        </div>
+        <img :src="logoUrl" alt="Truck Star" class="h-16 w-auto" />
         <span class="font-script text-5xl font-bold bg-gradient-to-bl from-orange-400 to-yellow-300 bg-clip-text text-transparent select-none">
           Truck Star
         </span>
