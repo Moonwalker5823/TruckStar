@@ -58,4 +58,25 @@ describe('fetchNearbyFoodTrucks', () => {
     await expect(fetchNearbyFoodTrucks(37.77, -122.41))
       .rejects.toThrow('REQUEST_DENIED');
   });
+
+  it('silently skips results with missing geometry', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        status: 'OK',
+        results: [
+          { name: 'No Geometry Truck', geometry: null, types: ['food'] },
+          {
+            name: 'Valid Truck',
+            geometry: { location: { lat: 37.77, lng: -122.41 } },
+            types: ['food'],
+          },
+        ],
+      }),
+    }));
+
+    const trucks = await fetchNearbyFoodTrucks(37.77, -122.41);
+    expect(trucks).toHaveLength(1);
+    expect(trucks[0].name).toBe('Valid Truck');
+  });
 });

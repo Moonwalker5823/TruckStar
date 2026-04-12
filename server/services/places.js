@@ -19,10 +19,12 @@ export async function fetchNearbyFoodTrucks(lat, lng) {
     throw new Error(`Google Places API returned status: ${data.status}`);
   }
 
-  return (data.results || []).map(place => ({
-    name: place.name,
-    lat: place.geometry.location.lat,
-    lng: place.geometry.location.lng,
-    cuisine: place.types?.[0] ?? null,
-  }));
+  return (data.results || [])
+    .filter(place => place.geometry?.location)
+    .map(place => ({
+      name: place.name,
+      lat: place.geometry.location.lat,
+      lng: place.geometry.location.lng,
+      cuisine: place.types?.[0] ?? null,
+    }));
 }
