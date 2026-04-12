@@ -40,7 +40,7 @@
         </div>
 
         <!-- Right panel: detail view or cards list -->
-        <div class="w-full md:w-80 h-80 md:h-[500px]">
+        <div class="w-full md:w-80 h-64 md:h-[500px] overflow-hidden">
           <TruckDetail
             v-if="selectedTruck"
             :truck="selectedTruck"
@@ -48,6 +48,10 @@
             @show-on-map="loc => { userLocation = loc; selectedTruck = null; }"
           />
           <div v-else class="flex flex-col gap-3 overflow-y-auto h-full pr-1">
+            <!-- Error shown at top of panel (top-right of map) -->
+            <div v-if="error" class="shrink-0 bg-red-900/40 border border-red-700/60 rounded-lg px-3 py-2 text-sm text-red-400">
+              {{ error }}
+            </div>
             <p v-if="trucks.length" class="text-xs text-gray-400 px-1 shrink-0">
               {{ trucks.length }} truck{{ trucks.length === 1 ? '' : 's' }} found nearby
             </p>
@@ -57,15 +61,12 @@
               :truck="truck"
               @select="selectedTruck = truck"
             />
-            <p v-if="!trucks.length && !loading" class="text-gray-500 text-sm text-center pt-10">
+            <p v-if="!trucks.length && !loading && !error" class="text-gray-500 text-sm text-center pt-10">
               Search a location or use your current location to find nearby food trucks.
             </p>
           </div>
         </div>
       </div>
-
-      <!-- Error -->
-      <p v-if="error" class="text-sm text-red-400">{{ error }}</p>
 
       <!-- Hot Spots -->
       <div>
@@ -117,8 +118,17 @@ const POPULAR_TRUCKS = [
   { name: 'Coolhaus', lat: 34.0195, lng: -118.4912, cuisine: 'Dessert', tagline: 'Architecture-inspired ice cream sandwiches', city: 'Los Angeles, CA' },
 ];
 
+// TODO: remove mock data once Google API key is configured
+const MOCK_TRUCKS = [
+  { name: 'Downtown Taco Co.', lat: 37.7849, lng: -122.4094, cuisine: 'Mexican', photo_reference: null, website: 'https://example.com', phone: '(415) 555-0101', maps_url: null },
+  { name: 'The Rolling Burger', lat: 37.7750, lng: -122.4183, cuisine: 'American', photo_reference: null, website: null, phone: '(415) 555-0102', maps_url: null },
+  { name: 'Pho On Wheels', lat: 37.7700, lng: -122.4300, cuisine: 'Vietnamese', photo_reference: null, website: 'https://example.com', phone: null, maps_url: null },
+  { name: 'Curry Express', lat: 37.7800, lng: -122.4200, cuisine: 'Indian', photo_reference: null, website: null, phone: '(415) 555-0104', maps_url: null },
+  { name: 'Seoul Food Truck', lat: 37.7650, lng: -122.4100, cuisine: 'Korean', photo_reference: null, website: 'https://example.com', phone: '(415) 555-0105', maps_url: null },
+];
+
 const headerRef = ref(null);
-const trucks = ref([]);
+const trucks = ref(MOCK_TRUCKS);
 const userLocation = ref(DEFAULT_CENTER);
 const searchQuery = ref('');
 const loading = ref(false);
