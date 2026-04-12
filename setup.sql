@@ -4,8 +4,8 @@ USE food_trucks;
 CREATE TABLE IF NOT EXISTS trucks (
   id           INT          AUTO_INCREMENT PRIMARY KEY,
   name         VARCHAR(255) NOT NULL UNIQUE,
-  latitude     FLOAT        NOT NULL,
-  longitude    FLOAT        NOT NULL,
+  latitude     DECIMAL(10, 7) NOT NULL,
+  longitude    DECIMAL(10, 7) NOT NULL,
   cuisine      VARCHAR(255),
   source       VARCHAR(100) DEFAULT 'google_places',
   last_seen_at DATETIME     NOT NULL

@@ -6,7 +6,9 @@
 
 **Architecture:** `server/` (Express, port 3001) and `src/` (Vue 3 + Vite, port 5173) coexist in one repo. In development, Vite proxies `/api/*` to Express. State lives in `App.vue`; `MapView.vue` is a pure display component that owns the Leaflet instance. The DB cache write is best-effort and never blocks the HTTP response.
 
-**Tech Stack:** Vue 3, Vite 5, Tailwind CSS v4 (`@tailwindcss/vite`), Leaflet 1.x, Express 4, MySQL2, Google Places Nearby Search API, Vitest 2, `@vue/test-utils`, `happy-dom`, `supertest`, `concurrently`
+**Tech Stack:** Vue 3, Vite 5, Tailwind CSS v3 (PostCSS), Leaflet 1.x, Express 4, MySQL2, Google Places Nearby Search API, Vitest 2, `@vue/test-utils`, `happy-dom`, `supertest`, `concurrently`
+
+> **Note:** Tailwind v4 was originally specified but requires Node ≥ 20. The machine runs Node 18, so Tailwind v3 + PostCSS is used instead. `tailwind.config.cjs` and `postcss.config.cjs` have been added to the project root.
 
 ---
 
@@ -157,8 +159,8 @@ USE food_trucks;
 CREATE TABLE IF NOT EXISTS trucks (
   id           INT          AUTO_INCREMENT PRIMARY KEY,
   name         VARCHAR(255) NOT NULL UNIQUE,
-  latitude     FLOAT        NOT NULL,
-  longitude    FLOAT        NOT NULL,
+  latitude     DECIMAL(10, 7) NOT NULL,
+  longitude    DECIMAL(10, 7) NOT NULL,
   cuisine      VARCHAR(255),
   source       VARCHAR(100) DEFAULT 'google_places',
   last_seen_at DATETIME     NOT NULL
@@ -568,10 +570,12 @@ git commit -m "feat: add Express server entry with cors and dotenv"
 
 - [ ] **Step 1: Overwrite `src/style.css`**
 
-Replace the entire file with:
+Replace the entire file with (Tailwind v3 directives):
 
 ```css
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 ```
 
 - [ ] **Step 2: Overwrite `src/main.js`**
