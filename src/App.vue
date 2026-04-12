@@ -1,35 +1,80 @@
 <template>
-  <div class="flex flex-col h-screen bg-gray-900 text-white">
-    <header class="flex items-center justify-between px-6 py-4 bg-gray-800 shadow-md shrink-0">
-      <h1 class="text-2xl font-bold tracking-tight">Truck Star</h1>
-      <div class="flex items-center gap-4">
-        <span v-if="error" class="text-sm text-red-400">{{ error }}</span>
-        <span v-if="loading" class="text-sm text-gray-400">Searching...</span>
+  <div class="min-h-screen bg-gray-900 text-white">
+    <header class="bg-gray-800 shadow-md">
+      <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center gap-3">
+        <h1 class="text-xl font-bold tracking-tight shrink-0">Food Truck Finder</h1>
+        <div class="flex items-center gap-2 flex-1 min-w-0">
+          <input
+            v-model="searchQuery"
+            @keyup.enter="searchLocation"
+            type="text"
+            placeholder="Search a city or address..."
+            class="flex-1 min-w-0 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-orange-500"
+          />
+          <button
+            @click="searchLocation"
+            :disabled="loading || !searchQuery.trim()"
+            class="shrink-0 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors"
+          >
+            Search
+          </button>
+        </div>
         <button
           @click="refresh"
           :disabled="loading"
-          class="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors"
+          class="shrink-0 px-4 py-2 bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors"
         >
-          Refresh Location
+          {{ loading ? 'Searching...' : 'Use My Location' }}
         </button>
       </div>
     </header>
-    <main class="flex-1 overflow-hidden">
-      <MapView :trucks="trucks" :center="userLocation" />
-    </main>
+
+    <div class="max-w-7xl mx-auto px-6 py-6">
+      <div class="flex gap-6">
+        <div class="flex-1 h-[520px] rounded-xl overflow-hidden ring-1 ring-gray-700">
+          <MapView :trucks="trucks" :center="userLocation" />
+        </div>
+
+        <div class="w-80 flex flex-col gap-3 overflow-y-auto h-[520px] pr-1">
+          <p v-if="isDefaultTrucks" class="text-xs text-gray-400 px-1">
+            No trucks found nearby — showing popular US food trucks:
+          </p>
+          <p v-else-if="trucks.length" class="text-xs text-gray-400 px-1">
+            {{ trucks.length }} truck{{ trucks.length === 1 ? '' : 's' }} found nearby
+          </p>
+          <TruckCard v-for="truck in trucks" :key="truck.name" :truck="truck" />
+          <p v-if="!trucks.length && !loading" class="text-gray-500 text-sm text-center pt-10">
+            No food trucks found.
+          </p>
+        </div>
+      </div>
+
+      <p v-if="error" class="mt-4 text-sm text-red-400">{{ error }}</p>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import MapView from './components/MapView.vue';
+import TruckCard from './components/TruckCard.vue';
 
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 };
 
+const POPULAR_TRUCKS = [
+  { name: 'Kogi BBQ', lat: 34.0522, lng: -118.2437, cuisine: 'Korean-Mexican Fusion' },
+  { name: 'The Halal Guys', lat: 40.7614, lng: -73.9776, cuisine: 'Halal Street Food' },
+  { name: "Luke's Lobster", lat: 43.6591, lng: -70.2568, cuisine: 'Seafood' },
+  { name: 'Cousins Maine Lobster', lat: 33.7490, lng: -84.3880, cuisine: 'Seafood' },
+  { name: 'Coolhaus', lat: 34.0195, lng: -118.4912, cuisine: 'Dessert' },
+];
+
 const trucks = ref([]);
 const userLocation = ref(DEFAULT_CENTER);
+const searchQuery = ref('');
 const loading = ref(false);
 const error = ref(null);
+const isDefaultTrucks = ref(false);
 
 function getLocation() {
   return new Promise((resolve, reject) => {
@@ -53,6 +98,15 @@ async function fetchTrucks(lat, lng) {
   return response.json();
 }
 
+async function geocodeLocation(query) {
+  const params = new URLSearchParams({ q: query, format: 'json', limit: '1' });
+  const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
+  if (!response.ok) throw new Error('Geocoding service unavailable');
+  const results = await response.json();
+  if (!results.length) throw new Error(`No location found for "${query}"`);
+  return { lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) };
+}
+
 async function refresh() {
   loading.value = true;
   error.value = null;
@@ -60,7 +114,25 @@ async function refresh() {
     const location = await getLocation();
     const newTrucks = await fetchTrucks(location.lat, location.lng);
     userLocation.value = location;
-    trucks.value = newTrucks;
+    trucks.value = newTrucks.length ? newTrucks : POPULAR_TRUCKS;
+    isDefaultTrucks.value = !newTrucks.length;
+  } catch (err) {
+    error.value = err.message;
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function searchLocation() {
+  if (!searchQuery.value.trim()) return;
+  loading.value = true;
+  error.value = null;
+  try {
+    const location = await geocodeLocation(searchQuery.value.trim());
+    const newTrucks = await fetchTrucks(location.lat, location.lng);
+    userLocation.value = location;
+    trucks.value = newTrucks.length ? newTrucks : POPULAR_TRUCKS;
+    isDefaultTrucks.value = !newTrucks.length;
   } catch (err) {
     error.value = err.message;
   } finally {
