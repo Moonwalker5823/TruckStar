@@ -118,17 +118,8 @@ const POPULAR_TRUCKS = [
   { name: 'Coolhaus', lat: 34.0195, lng: -118.4912, cuisine: 'Dessert', tagline: 'Architecture-inspired ice cream sandwiches', city: 'Los Angeles, CA' },
 ];
 
-// TODO: remove mock data once Google API key is configured
-const MOCK_TRUCKS = [
-  { name: 'Downtown Taco Co.', lat: 37.7849, lng: -122.4094, cuisine: 'Mexican', photo_reference: null, website: 'https://example.com', phone: '(415) 555-0101', maps_url: null },
-  { name: 'The Rolling Burger', lat: 37.7750, lng: -122.4183, cuisine: 'American', photo_reference: null, website: null, phone: '(415) 555-0102', maps_url: null },
-  { name: 'Pho On Wheels', lat: 37.7700, lng: -122.4300, cuisine: 'Vietnamese', photo_reference: null, website: 'https://example.com', phone: null, maps_url: null },
-  { name: 'Curry Express', lat: 37.7800, lng: -122.4200, cuisine: 'Indian', photo_reference: null, website: null, phone: '(415) 555-0104', maps_url: null },
-  { name: 'Seoul Food Truck', lat: 37.7650, lng: -122.4100, cuisine: 'Korean', photo_reference: null, website: 'https://example.com', phone: '(415) 555-0105', maps_url: null },
-];
-
 const headerRef = ref(null);
-const trucks = ref(MOCK_TRUCKS);
+const trucks = ref([]);
 const userLocation = ref(DEFAULT_CENTER);
 const searchQuery = ref('');
 const loading = ref(false);
