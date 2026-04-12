@@ -4,11 +4,14 @@ import { fetchNearbyFoodTrucks } from '../services/places.js';
 
 const router = Router();
 
-const UPSERT_SQL = `INSERT INTO trucks (name, latitude, longitude, cuisine, source, last_seen_at)
-  VALUES (?, ?, ?, ?, 'google_places', NOW())
+const UPSERT_SQL = `INSERT INTO trucks (name, latitude, longitude, cuisine, website, phone, photo_reference, source, last_seen_at)
+  VALUES (?, ?, ?, ?, ?, ?, ?, 'google_places', NOW())
   ON DUPLICATE KEY UPDATE
     latitude = VALUES(latitude),
     longitude = VALUES(longitude),
+    website = VALUES(website),
+    phone = VALUES(phone),
+    photo_reference = VALUES(photo_reference),
     last_seen_at = NOW()`;
 
 router.get('/', async (req, res) => {
@@ -33,7 +36,7 @@ router.get('/', async (req, res) => {
     try {
       for (const truck of trucks) {
         try {
-          await conn.execute(UPSERT_SQL, [truck.name, truck.lat, truck.lng, truck.cuisine ?? null]);
+          await conn.execute(UPSERT_SQL, [truck.name, truck.lat, truck.lng, truck.cuisine ?? null, truck.website ?? null, truck.phone ?? null, truck.photo_reference ?? null]);
         } catch (err) {
           console.error(`MySQL upsert error for "${truck.name}":`, err.message);
         }

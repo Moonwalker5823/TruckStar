@@ -1,14 +1,18 @@
 <template>
   <div class="min-h-screen bg-gray-900 text-white">
+    <!-- Navbar -->
     <header class="bg-gray-800 shadow-md">
-      <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center gap-3">
-        <h1 class="text-xl font-bold tracking-tight shrink-0">Food Truck Finder</h1>
+      <div class="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2 shrink-0">
+          <img :src="logoUrl" alt="Truck Star" class="h-9 w-auto" />
+          <h1 class="text-xl font-bold tracking-tight">Truck Star</h1>
+        </div>
         <div class="flex items-center gap-2 flex-1 min-w-0">
           <input
             v-model="searchQuery"
             @keyup.enter="searchLocation"
             type="text"
-            placeholder="Search a city or address..."
+            placeholder="Search city, address, or zip code..."
             class="flex-1 min-w-0 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-orange-500"
           />
           <button
@@ -29,28 +33,54 @@
       </div>
     </header>
 
-    <div class="max-w-7xl mx-auto px-6 py-6">
+    <div class="max-w-7xl mx-auto px-6 py-6 space-y-5">
+      <!-- Map + Cards -->
       <div class="flex gap-6">
-        <div class="flex-1 h-[520px] rounded-xl overflow-hidden ring-1 ring-gray-700">
+        <div class="flex-1 h-[500px] rounded-xl overflow-hidden ring-1 ring-gray-700">
           <MapView :trucks="trucks" :center="userLocation" />
         </div>
 
-        <div class="w-80 flex flex-col gap-3 overflow-y-auto h-[520px] pr-1">
-          <p v-if="isDefaultTrucks" class="text-xs text-gray-400 px-1">
-            No trucks found nearby — showing popular US food trucks:
-          </p>
-          <p v-else-if="trucks.length" class="text-xs text-gray-400 px-1">
+        <div class="w-80 flex flex-col gap-3 overflow-y-auto h-[500px] pr-1">
+          <p v-if="trucks.length" class="text-xs text-gray-400 px-1 shrink-0">
             {{ trucks.length }} truck{{ trucks.length === 1 ? '' : 's' }} found nearby
           </p>
-          <TruckCard v-for="truck in trucks" :key="truck.name" :truck="truck" />
+          <TruckCard
+            v-for="truck in trucks"
+            :key="truck.name"
+            :truck="truck"
+            @select="selectedTruck = truck"
+          />
           <p v-if="!trucks.length && !loading" class="text-gray-500 text-sm text-center pt-10">
-            No food trucks found.
+            Search a location or use your current location to find nearby food trucks.
           </p>
         </div>
       </div>
 
-      <p v-if="error" class="mt-4 text-sm text-red-400">{{ error }}</p>
+      <!-- Error -->
+      <p v-if="error" class="text-sm text-red-400">{{ error }}</p>
+
+      <!-- Hot Spots -->
+      <div>
+        <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+          Hot Spots — Top US Food Trucks
+        </h2>
+        <div class="grid grid-cols-5 gap-4">
+          <HotSpotCard
+            v-for="truck in POPULAR_TRUCKS"
+            :key="truck.name"
+            :truck="truck"
+            @select="selectedTruck = truck"
+          />
+        </div>
+      </div>
     </div>
+
+    <!-- Modal -->
+    <TruckModal
+      v-if="selectedTruck"
+      :truck="selectedTruck"
+      @close="selectedTruck = null"
+    />
   </div>
 </template>
 
@@ -58,15 +88,18 @@
 import { ref, onMounted } from 'vue';
 import MapView from './components/MapView.vue';
 import TruckCard from './components/TruckCard.vue';
+import HotSpotCard from './components/HotSpotCard.vue';
+import TruckModal from './components/TruckModal.vue';
+import logoUrl from './assets/TruckStar.png';
 
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 };
 
 const POPULAR_TRUCKS = [
-  { name: 'Kogi BBQ', lat: 34.0522, lng: -118.2437, cuisine: 'Korean-Mexican Fusion' },
-  { name: 'The Halal Guys', lat: 40.7614, lng: -73.9776, cuisine: 'Halal Street Food' },
-  { name: "Luke's Lobster", lat: 43.6591, lng: -70.2568, cuisine: 'Seafood' },
-  { name: 'Cousins Maine Lobster', lat: 33.7490, lng: -84.3880, cuisine: 'Seafood' },
-  { name: 'Coolhaus', lat: 34.0195, lng: -118.4912, cuisine: 'Dessert' },
+  { name: 'Kogi BBQ', lat: 34.0522, lng: -118.2437, cuisine: 'Korean-Mexican', tagline: 'The food truck that started a revolution', city: 'Los Angeles, CA' },
+  { name: 'The Halal Guys', lat: 40.7614, lng: -73.9776, cuisine: 'Halal', tagline: 'NYC street food icon since 1990', city: 'New York, NY' },
+  { name: "Luke's Lobster", lat: 43.6591, lng: -70.2568, cuisine: 'Seafood', tagline: 'Sustainably sourced Maine lobster rolls', city: 'Portland, ME' },
+  { name: 'Cousins Maine Lobster', lat: 33.7490, lng: -84.3880, cuisine: 'Seafood', tagline: 'As seen on Shark Tank', city: 'Nationwide' },
+  { name: 'Coolhaus', lat: 34.0195, lng: -118.4912, cuisine: 'Dessert', tagline: 'Architecture-inspired ice cream sandwiches', city: 'Los Angeles, CA' },
 ];
 
 const trucks = ref([]);
@@ -74,7 +107,7 @@ const userLocation = ref(DEFAULT_CENTER);
 const searchQuery = ref('');
 const loading = ref(false);
 const error = ref(null);
-const isDefaultTrucks = ref(false);
+const selectedTruck = ref(null);
 
 function getLocation() {
   return new Promise((resolve, reject) => {
@@ -114,8 +147,7 @@ async function refresh() {
     const location = await getLocation();
     const newTrucks = await fetchTrucks(location.lat, location.lng);
     userLocation.value = location;
-    trucks.value = newTrucks.length ? newTrucks : POPULAR_TRUCKS;
-    isDefaultTrucks.value = !newTrucks.length;
+    trucks.value = newTrucks;
   } catch (err) {
     error.value = err.message;
   } finally {
@@ -131,8 +163,7 @@ async function searchLocation() {
     const location = await geocodeLocation(searchQuery.value.trim());
     const newTrucks = await fetchTrucks(location.lat, location.lng);
     userLocation.value = location;
-    trucks.value = newTrucks.length ? newTrucks : POPULAR_TRUCKS;
-    isDefaultTrucks.value = !newTrucks.length;
+    trucks.value = newTrucks;
   } catch (err) {
     error.value = err.message;
   } finally {
