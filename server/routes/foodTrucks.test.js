@@ -60,4 +60,20 @@ describe('GET /api/food-trucks', () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual(mockTrucks);
   });
+
+  it('upserts each truck and returns 200 on full success', async () => {
+    const mockTrucks = [
+      { name: 'Taco Truck', lat: 37.77, lng: -122.41, cuisine: 'food' },
+    ];
+    fetchNearbyFoodTrucks.mockResolvedValue(mockTrucks);
+
+    const mockConn = { execute: vi.fn().mockResolvedValue([]), release: vi.fn() };
+    pool.getConnection.mockResolvedValue(mockConn);
+
+    const res = await request.get('/api/food-trucks?lat=37.77&lng=-122.41');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual(mockTrucks);
+    expect(mockConn.execute).toHaveBeenCalledTimes(1);
+    expect(mockConn.release).toHaveBeenCalled();
+  });
 });

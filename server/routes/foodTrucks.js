@@ -4,6 +4,13 @@ import { fetchNearbyFoodTrucks } from '../services/places.js';
 
 const router = Router();
 
+const UPSERT_SQL = `INSERT INTO trucks (name, latitude, longitude, cuisine, source, last_seen_at)
+  VALUES (?, ?, ?, ?, 'google_places', NOW())
+  ON DUPLICATE KEY UPDATE
+    latitude = VALUES(latitude),
+    longitude = VALUES(longitude),
+    last_seen_at = NOW()`;
+
 router.get('/', async (req, res) => {
   const lat = parseFloat(req.query.lat);
   const lng = parseFloat(req.query.lng);
@@ -16,7 +23,7 @@ router.get('/', async (req, res) => {
   try {
     trucks = await fetchNearbyFoodTrucks(lat, lng);
   } catch (err) {
-    console.error('Google Places error:', err.message);
+    console.error('Google Places error:', err);
     return res.status(502).json({ error: 'Failed to fetch nearby trucks' });
   }
 
@@ -25,21 +32,17 @@ router.get('/', async (req, res) => {
     const conn = await pool.getConnection();
     try {
       for (const truck of trucks) {
-        await conn.execute(
-          `INSERT INTO trucks (name, latitude, longitude, cuisine, source, last_seen_at)
-           VALUES (?, ?, ?, ?, 'google_places', NOW())
-           ON DUPLICATE KEY UPDATE
-             latitude = VALUES(latitude),
-             longitude = VALUES(longitude),
-             last_seen_at = NOW()`,
-          [truck.name, truck.lat, truck.lng, truck.cuisine ?? null],
-        );
+        try {
+          await conn.execute(UPSERT_SQL, [truck.name, truck.lat, truck.lng, truck.cuisine ?? null]);
+        } catch (err) {
+          console.error(`MySQL upsert error for "${truck.name}":`, err.message);
+        }
       }
     } finally {
       conn.release();
     }
   } catch (err) {
-    console.error('MySQL upsert error:', err.message);
+    console.error('MySQL connection error:', err.message);
   }
 
   res.json(trucks);
