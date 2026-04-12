@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-900 text-white">
     <!-- Navbar -->
-    <header class="bg-gray-800 shadow-md">
+    <header ref="headerRef" class="bg-gray-800 shadow-md">
       <div class="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center gap-3">
         <div class="flex items-center gap-2 shrink-0">
           <img :src="logoUrl" alt="Truck Star" class="h-9 w-auto" />
@@ -80,6 +80,7 @@
       v-if="selectedTruck"
       :truck="selectedTruck"
       @close="selectedTruck = null"
+      @show-on-map="loc => { userLocation.value = loc; selectedTruck = null; }"
     />
   </div>
 </template>
@@ -102,6 +103,7 @@ const POPULAR_TRUCKS = [
   { name: 'Coolhaus', lat: 34.0195, lng: -118.4912, cuisine: 'Dessert', tagline: 'Architecture-inspired ice cream sandwiches', city: 'Los Angeles, CA' },
 ];
 
+const headerRef = ref(null);
 const trucks = ref([]);
 const userLocation = ref(DEFAULT_CENTER);
 const searchQuery = ref('');
@@ -171,5 +173,10 @@ async function searchLocation() {
   }
 }
 
-onMounted(refresh);
+onMounted(() => {
+  if (headerRef.value) {
+    document.documentElement.style.setProperty('--navbar-h', `${headerRef.value.offsetHeight}px`);
+  }
+  refresh();
+});
 </script>

@@ -1,7 +1,8 @@
 <template>
   <Teleport to="body">
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      class="fixed inset-x-0 bottom-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      style="top: var(--navbar-h, 60px)"
       @click.self="$emit('close')"
     >
       <div class="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg overflow-hidden shadow-2xl">
@@ -62,13 +63,16 @@
               rel="noopener"
               class="flex items-center gap-3 text-sm text-gray-400 hover:text-gray-300 transition-colors"
             >
-              <span class="text-lg">📍</span>
+              <span class="text-lg">🗺️</span>
               <span>View on Google Maps</span>
             </a>
-          </div>
-
-          <div class="text-xs text-gray-600 font-mono pt-1">
-            {{ truck.lat.toFixed(5) }}, {{ truck.lng.toFixed(5) }}
+            <button
+              @click="$emit('show-on-map', { lat: truck.lat, lng: truck.lng })"
+              class="flex items-center gap-3 text-sm text-blue-400 hover:text-blue-300 transition-colors w-full text-left"
+            >
+              <span class="text-lg">📍</span>
+              <span class="font-mono">{{ truck.lat.toFixed(5) }}, {{ truck.lng.toFixed(5) }} — Show on Map</span>
+            </button>
           </div>
         </div>
       </div>
@@ -78,5 +82,5 @@
 
 <script setup>
 defineProps({ truck: { type: Object, required: true } });
-defineEmits(['close']);
+defineEmits(['close', 'show-on-map']);
 </script>
