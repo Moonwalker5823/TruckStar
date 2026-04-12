@@ -67,6 +67,10 @@ describe('MapView', () => {
     });
     await flushPromises();
 
+    // old marker was removed
+    const oldMarker = L.marker.mock.results[0].value;
+    expect(oldMarker.remove).toHaveBeenCalled();
+
     // 1 on mount + 2 after prop change = 3 total
     expect(L.marker).toHaveBeenCalledTimes(3);
   });
