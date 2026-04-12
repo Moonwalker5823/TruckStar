@@ -3,9 +3,10 @@
     <!-- Navbar -->
     <header ref="headerRef" class="bg-gray-800 shadow-md">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-[5px] md:flex-row md:items-center md:gap-3">
-        <div class="flex items-center gap-2 justify-center md:justify-start md:shrink-0">
+        <div class="flex items-center justify-between md:justify-start md:gap-2 md:shrink-0">
           <img :src="logoUrl" alt="Truck Star" class="h-9 w-auto" />
           <h1 class="font-script text-3xl font-bold bg-gradient-to-br from-orange-400 to-yellow-300 bg-clip-text text-transparent">Truck Star</h1>
+          <img :src="logoUrl" alt="" aria-hidden="true" class="h-9 w-auto md:hidden" />
         </div>
         <input
           v-model="searchQuery"
