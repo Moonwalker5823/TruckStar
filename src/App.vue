@@ -2,34 +2,32 @@
   <div class="min-h-screen bg-gray-900 text-white">
     <!-- Navbar -->
     <header ref="headerRef" class="bg-gray-800 shadow-md">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-3">
-        <div class="flex items-center gap-2 shrink-0">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-[5px] md:flex-row md:items-center md:gap-3">
+        <div class="flex items-center gap-2 md:shrink-0">
           <img :src="logoUrl" alt="Truck Star" class="h-9 w-auto" />
           <h1 class="font-script text-3xl font-bold bg-gradient-to-br from-orange-400 to-yellow-300 bg-clip-text text-transparent">Truck Star</h1>
         </div>
-        <div class="flex items-center gap-2 flex-1 min-w-0">
-          <input
-            v-model="searchQuery"
-            @keyup.enter="searchLocation"
-            type="text"
-            placeholder="Search US city, address, or zip code..."
-            class="flex-1 min-w-0 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-orange-500"
-          />
-          <button
-            @click="searchLocation"
-            :disabled="loading || !searchQuery.trim()"
-            class="shrink-0 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors"
-          >
-            Search
-          </button>
-          <button
-            @click="refresh"
-            :disabled="loading"
-            class="shrink-0 px-4 py-2 bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors"
-          >
-            {{ loading ? 'Searching...' : 'Use My Location' }}
-          </button>
-        </div>
+        <input
+          v-model="searchQuery"
+          @keyup.enter="searchLocation"
+          type="text"
+          placeholder="Search US city, address, or zip code..."
+          class="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 md:flex-1 md:min-w-0"
+        />
+        <button
+          @click="searchLocation"
+          :disabled="loading || !searchQuery.trim()"
+          class="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors md:shrink-0"
+        >
+          Search
+        </button>
+        <button
+          @click="refresh"
+          :disabled="loading"
+          class="px-4 py-2 bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors md:shrink-0"
+        >
+          {{ loading ? 'Searching...' : 'Use My Location' }}
+        </button>
       </div>
     </header>
 
@@ -73,13 +71,12 @@
         <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
           Hot Spots — Top US Food Trucks
         </h2>
-        <div class="flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-5 md:overflow-x-visible md:pb-0">
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-5">
           <HotSpotCard
             v-for="truck in POPULAR_TRUCKS"
             :key="truck.name"
             :truck="truck"
             @select="selectTruck(truck)"
-            class="shrink-0 w-52 md:w-auto md:shrink"
           />
         </div>
       </div>
