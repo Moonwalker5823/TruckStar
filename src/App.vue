@@ -2,12 +2,14 @@
   <div class="min-h-screen bg-gray-900 text-white">
     <!-- Navbar -->
     <header ref="headerRef" class="bg-gray-800 shadow-md">
-      <div class="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center gap-3">
-        <div class="flex items-center gap-2 shrink-0">
-          <img :src="logoUrl" alt="Truck Star" class="h-9 w-auto" />
-          <h1 class="text-xl font-bold tracking-tight">Truck Star</h1>
+      <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col items-center gap-4">
+        <!-- Logo + title -->
+        <div class="flex items-center gap-3">
+          <img :src="logoUrl" alt="Truck Star" class="h-14 w-auto" />
+          <h1 class="text-4xl font-extrabold tracking-tight">Truck Star</h1>
         </div>
-        <div class="flex items-center gap-2 flex-1 min-w-0">
+        <!-- Search row -->
+        <div class="flex items-center gap-2 w-full max-w-2xl">
           <input
             v-model="searchQuery"
             @keyup.enter="searchLocation"
@@ -22,14 +24,14 @@
           >
             Search
           </button>
+          <button
+            @click="refresh"
+            :disabled="loading"
+            class="shrink-0 px-4 py-2 bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors"
+          >
+            {{ loading ? 'Searching...' : 'Use My Location' }}
+          </button>
         </div>
-        <button
-          @click="refresh"
-          :disabled="loading"
-          class="shrink-0 px-4 py-2 bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-semibold transition-colors"
-        >
-          {{ loading ? 'Searching...' : 'Use My Location' }}
-        </button>
       </div>
     </header>
 
