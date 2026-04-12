@@ -82,6 +82,12 @@
           />
         </div>
       </div>
+
+      <!-- Footer branding -->
+      <div class="flex flex-col items-center gap-2 py-6 border-t border-gray-800">
+        <img :src="logoUrl" alt="Truck Star" class="h-16 w-auto" />
+        <h2 class="text-2xl font-extrabold tracking-tight">Truck Star</h2>
+      </div>
     </div>
   </div>
 </template>
