@@ -34,25 +34,34 @@
     </header>
 
     <div class="max-w-7xl mx-auto px-6 py-6 space-y-5">
-      <!-- Map + Cards -->
+      <!-- Map + side panel -->
       <div class="flex gap-6">
         <div class="flex-1 h-[500px] rounded-xl overflow-hidden ring-1 ring-gray-700">
           <MapView :trucks="trucks" :center="userLocation" />
         </div>
 
-        <div class="w-80 flex flex-col gap-3 overflow-y-auto h-[500px] pr-1">
-          <p v-if="trucks.length" class="text-xs text-gray-400 px-1 shrink-0">
-            {{ trucks.length }} truck{{ trucks.length === 1 ? '' : 's' }} found nearby
-          </p>
-          <TruckCard
-            v-for="truck in trucks"
-            :key="truck.name"
-            :truck="truck"
-            @select="selectedTruck = truck"
+        <!-- Right panel: detail view or cards list -->
+        <div class="w-80 h-[500px]">
+          <TruckDetail
+            v-if="selectedTruck"
+            :truck="selectedTruck"
+            @close="selectedTruck = null"
+            @show-on-map="loc => { userLocation = loc; selectedTruck = null; }"
           />
-          <p v-if="!trucks.length && !loading" class="text-gray-500 text-sm text-center pt-10">
-            Search a location or use your current location to find nearby food trucks.
-          </p>
+          <div v-else class="flex flex-col gap-3 overflow-y-auto h-full pr-1">
+            <p v-if="trucks.length" class="text-xs text-gray-400 px-1 shrink-0">
+              {{ trucks.length }} truck{{ trucks.length === 1 ? '' : 's' }} found nearby
+            </p>
+            <TruckCard
+              v-for="truck in trucks"
+              :key="truck.name"
+              :truck="truck"
+              @select="selectedTruck = truck"
+            />
+            <p v-if="!trucks.length && !loading" class="text-gray-500 text-sm text-center pt-10">
+              Search a location or use your current location to find nearby food trucks.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -69,19 +78,11 @@
             v-for="truck in POPULAR_TRUCKS"
             :key="truck.name"
             :truck="truck"
-            @select="selectedTruck = truck"
+            @select="selectTruck(truck)"
           />
         </div>
       </div>
     </div>
-
-    <!-- Modal -->
-    <TruckModal
-      v-if="selectedTruck"
-      :truck="selectedTruck"
-      @close="selectedTruck = null"
-      @show-on-map="loc => { userLocation.value = loc; selectedTruck = null; }"
-    />
   </div>
 </template>
 
@@ -89,8 +90,8 @@
 import { ref, onMounted } from 'vue';
 import MapView from './components/MapView.vue';
 import TruckCard from './components/TruckCard.vue';
+import TruckDetail from './components/TruckDetail.vue';
 import HotSpotCard from './components/HotSpotCard.vue';
-import TruckModal from './components/TruckModal.vue';
 import logoUrl from './assets/TruckStar.png';
 
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 };
@@ -110,6 +111,11 @@ const searchQuery = ref('');
 const loading = ref(false);
 const error = ref(null);
 const selectedTruck = ref(null);
+
+function selectTruck(truck) {
+  selectedTruck.value = truck;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 function getLocation() {
   return new Promise((resolve, reject) => {
@@ -147,9 +153,8 @@ async function refresh() {
   error.value = null;
   try {
     const location = await getLocation();
-    const newTrucks = await fetchTrucks(location.lat, location.lng);
-    userLocation.value = location;
-    trucks.value = newTrucks;
+    userLocation.value = location;            // move map immediately
+    trucks.value = await fetchTrucks(location.lat, location.lng);
   } catch (err) {
     error.value = err.message;
   } finally {
@@ -163,9 +168,8 @@ async function searchLocation() {
   error.value = null;
   try {
     const location = await geocodeLocation(searchQuery.value.trim());
-    const newTrucks = await fetchTrucks(location.lat, location.lng);
-    userLocation.value = location;
-    trucks.value = newTrucks;
+    userLocation.value = location;            // move map immediately after geocoding
+    trucks.value = await fetchTrucks(location.lat, location.lng);
   } catch (err) {
     error.value = err.message;
   } finally {
