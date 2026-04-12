@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-screen bg-gray-900 text-white">
     <header class="flex items-center justify-between px-6 py-4 bg-gray-800 shadow-md shrink-0">
-      <h1 class="text-2xl font-bold tracking-tight">Food Truck Finder</h1>
+      <h1 class="text-2xl font-bold tracking-tight">Truck Star</h1>
       <div class="flex items-center gap-4">
         <span v-if="error" class="text-sm text-red-400">{{ error }}</span>
         <span v-if="loading" class="text-sm text-gray-400">Searching...</span>
@@ -58,8 +58,9 @@ async function refresh() {
   error.value = null;
   try {
     const location = await getLocation();
+    const newTrucks = await fetchTrucks(location.lat, location.lng);
     userLocation.value = location;
-    trucks.value = await fetchTrucks(location.lat, location.lng);
+    trucks.value = newTrucks;
   } catch (err) {
     error.value = err.message;
   } finally {

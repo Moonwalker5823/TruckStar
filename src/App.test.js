@@ -46,6 +46,7 @@ describe('App', () => {
 
     const mapView = wrapper.findComponent({ name: 'MapView' });
     expect(mapView.props('trucks')).toEqual(mockTrucks);
+    expect(mapView.props('center')).toEqual({ lat: 37.77, lng: -122.41 });
   });
 
   it('shows error when geolocation is denied', async () => {
