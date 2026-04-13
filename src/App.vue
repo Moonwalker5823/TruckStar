@@ -40,7 +40,7 @@
         </div>
 
         <!-- Right panel: detail view or cards list -->
-        <div class="w-full md:w-80 h-64 md:h-[500px] overflow-hidden">
+        <div :class="['w-full md:w-80 md:h-[500px] overflow-hidden', selectedTruck ? 'h-[420px]' : 'h-64']">
           <TruckDetail
             v-if="selectedTruck"
             :truck="selectedTruck"
