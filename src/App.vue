@@ -45,7 +45,7 @@
             v-if="selectedTruck"
             :truck="selectedTruck"
             @close="selectedTruck = null"
-            @show-on-map="loc => { userLocation = loc; selectedTruck = null; }"
+            @show-on-map="loc => { userLocation = loc; }"
           />
           <div v-else class="flex flex-col gap-3 overflow-y-auto h-full pr-1">
             <!-- Error shown at top of panel (top-right of map) -->
