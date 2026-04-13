@@ -171,6 +171,7 @@ async function geocodeLocation(query) {
 }
 
 async function refresh() {
+  selectedTruck.value = null;
   loading.value = true;
   error.value = null;
   try {
@@ -189,6 +190,7 @@ async function refresh() {
 
 async function searchLocation() {
   if (!searchQuery.value.trim()) return;
+  selectedTruck.value = null;
   loading.value = true;
   error.value = null;
   try {
