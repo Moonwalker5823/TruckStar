@@ -152,7 +152,8 @@ function getLocation() {
 }
 
 async function fetchTrucks(lat, lng) {
-  const response = await fetch(`/api/food-trucks?lat=${lat}&lng=${lng}`);
+  const base = import.meta.env.VITE_API_BASE_URL || '';
+  const response = await fetch(`${base}/api/food-trucks?lat=${lat}&lng=${lng}`);
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
     throw new Error(data.error || 'Failed to fetch nearby trucks');

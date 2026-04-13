@@ -6,7 +6,7 @@
     <div class="relative h-36 bg-gradient-to-br from-gray-700 to-gray-800">
       <img
         v-if="truck.photo_reference"
-        :src="`/api/place-photo?ref=${encodeURIComponent(truck.photo_reference)}`"
+        :src="`${$apiBase}/api/place-photo?ref=${encodeURIComponent(truck.photo_reference)}`"
         :alt="truck.name"
         class="w-full h-full object-cover"
         loading="lazy"

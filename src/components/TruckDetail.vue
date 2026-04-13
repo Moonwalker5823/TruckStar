@@ -11,7 +11,7 @@
     <div class="relative h-44 rounded-xl overflow-hidden bg-gradient-to-br from-gray-700 to-gray-900 shrink-0">
       <img
         v-if="truck.photo_reference"
-        :src="`/api/place-photo?ref=${encodeURIComponent(truck.photo_reference)}&maxwidth=600`"
+        :src="`${$apiBase}/api/place-photo?ref=${encodeURIComponent(truck.photo_reference)}&maxwidth=600`"
         :alt="truck.name"
         class="w-full h-full object-cover"
       />
