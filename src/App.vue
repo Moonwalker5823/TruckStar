@@ -4,9 +4,7 @@
     <header ref="headerRef" class="bg-gray-800 shadow-md">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-[5px] md:flex-row md:items-center md:gap-3">
         <div class="flex items-center justify-between md:justify-start md:gap-2 md:shrink-0">
-          <img :src="logoUrl" alt="Truck Star" class="h-9 w-auto" />
           <h1 class="font-script text-3xl font-bold bg-gradient-to-br from-orange-400 to-yellow-300 bg-clip-text text-transparent">Truck Star</h1>
-          <img :src="logoUrl" alt="" aria-hidden="true" class="h-9 w-auto md:hidden" />
         </div>
         <input
           v-model="searchQuery"
@@ -88,10 +86,6 @@
     <!-- Footer -->
     <footer class="bg-gray-800 w-full py-10 mt-6">
       <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
-        <span class="hidden md:block font-script text-5xl font-bold bg-gradient-to-br from-orange-400 to-yellow-300 bg-clip-text text-transparent select-none">
-          Truck Star
-        </span>
-        <img :src="logoUrl" alt="Truck Star" class="h-16 w-auto" />
         <span class="font-script text-5xl font-bold bg-gradient-to-bl from-orange-400 to-yellow-300 bg-clip-text text-transparent select-none">
           Truck Star
         </span>
@@ -106,8 +100,6 @@ import MapView from './components/MapView.vue';
 import TruckCard from './components/TruckCard.vue';
 import TruckDetail from './components/TruckDetail.vue';
 import HotSpotCard from './components/HotSpotCard.vue';
-import logoUrl from './assets/TruckStar.png';
-
 const DEFAULT_CENTER = { lat: 37.7749, lng: -122.4194 };
 
 const POPULAR_TRUCKS = [
